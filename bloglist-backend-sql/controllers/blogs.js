@@ -9,43 +9,41 @@ router.get('/', async (req, res) => {
   res.json(blogs)
 })
 
-router.post('/', async (req, res) => {
-  try {
-    console.log(req.body)
-    const blog = await Blog.create(req.body)
-    return res.json(blog)
-  } catch (error) {
-    return res.status(400).json({ error })
-  }
+router.post('/', async (req, res, next) => {
+  console.log(req.body)
+  
+  const blog = await Blog.create(req.body)
+  
+  res.json(blog)
 })
 
-router.get('/:id', blogFinder, async (req, res) => {
+router.get('/:id', blogFinder, async (req, res, next) => {
   if (req.blog) {
-    return res.json(blog)
+    res.json(blog)
   }
   else {
-    return res.status(404).end()
+    res.status(404).json({error: 'Blog not found.'})
   }
 })
 
-router.put('/:id', blogFinder, async (req, res) => {
+router.put('/:id', blogFinder, async (req, res, next) => {
   if (req.blog) {
     req.blog.likes = req.body.likes
     await req.blog.save()
     return res.json(req.blog)
   }
   else {
-    res.status(404).end()
+    res.status(404).json({error: 'Blog not found.'})
   }
 })
 
-router.delete('/:id', blogFinder, async (req, res) => {
+router.delete('/:id', blogFinder, async (req, res, next) => {
   if (req.blog) {
     await Blog.destroy({ where: { id: req.params.id } })
-    return res.status(204).end()
+    res.status(204).end()
   }
   else {
-    return res.status(404).end()
+    res.status(404).json({error: 'Blog not found.'})
   }
 })
 
