@@ -6,7 +6,7 @@ const { blogFinder, tokenExtractor, userExtractor } = require('../util/middlewar
 
 
 router.get('/', async (req, res) => {
-   let where = {}
+  let where = {}
 
   if (req.query.search) {
     where = {
