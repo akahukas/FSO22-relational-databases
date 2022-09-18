@@ -7,7 +7,10 @@ const blogFinder = async (req, res, next) => {
 
 const errorHandler = (error, req, res, next) => {
 
-  res.status(500).json({error: error.message})
+  res.status(500).json({
+    errorName: error.name,
+    errorMessage: error.message,
+  })
 
   next(error)
 }

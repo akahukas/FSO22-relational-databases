@@ -30,7 +30,7 @@ router.put('/:id', blogFinder, async (req, res, next) => {
   if (req.blog) {
     req.blog.likes = req.body.likes
     await req.blog.save()
-    return res.json(req.blog)
+    res.json(req.blog)
   }
   else {
     res.status(404).json({error: 'Blog not found.'})
