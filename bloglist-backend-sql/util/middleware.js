@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const { SECRET } = require('../util/config')
 
-const { Blog } = require('../models')
+const { Blog, User } = require('../models')
 
 const blogFinder = async (req, res, next) => {
   req.blog = await Blog.findByPk(req.params.id)
@@ -17,7 +17,23 @@ const tokenExtractor = (req, res, next) => {
   }
   else {
       req.decodedToken = null
-      return res.status(401).json({ error: 'Missing token.' })
+      return res.status(401).json({
+        errorMessage: 'Missing or Invalid Token.'
+      })
+  }
+
+  next()
+}
+
+const userExtractor = async (req, res, next) => {
+  const authorization = req.get('authorization')
+  const decodedToken = jwt.verify(authorization.substring(7), SECRET)
+
+  if (!req.token || !decodedToken.id) {
+      req.user = null
+  }
+  else {
+      req.user = await User.findByPk(decodedToken.id)
   }
 
   next()
@@ -27,7 +43,8 @@ const errorHandler = (error, req, res, next) => {
 
   if (error.name === 'JsonWebTokenError') {
     return res.status(401).json({
-      error: 'Invalid token.'
+      errorName: error.name,
+      errorMessage: 'Invalid token.'
     })
   }
   
@@ -42,5 +59,6 @@ const errorHandler = (error, req, res, next) => {
 module.exports = {
   blogFinder,
   tokenExtractor,
+  userExtractor,
   errorHandler
 }

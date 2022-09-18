@@ -1,7 +1,7 @@
 const router = require('express').Router()
 
 const { Blog, User } = require('../models')
-const { blogFinder, tokenExtractor } = require('../util/middleware')
+const { blogFinder, tokenExtractor, userExtractor } = require('../util/middleware')
 
 
 router.get('/', async (req, res) => {
@@ -48,14 +48,26 @@ router.put('/:id', blogFinder, async (req, res, next) => {
   }
 })
 
-router.delete('/:id', blogFinder, async (req, res, next) => {
-  if (req.blog) {
+router.delete('/:id', [blogFinder, tokenExtractor], async (req, res, next) => {
+
+  if (!req.decodedToken) {
+      return res.status(401).json({
+        errorMessage: 'Missing or Invalid Token.'
+      })
+  }
+
+  if (!req.blog) {
+      return res.status(404).json({
+        errorMessage: 'Blog not found.'
+      })
+  }
+  else if (!req.blog.userId || req.blog.userId === req.decodedToken.id) {
     await Blog.destroy({ where: { id: req.params.id } })
     res.status(204).end()
   }
-  else {
-    res.status(404).json({error: 'Blog not found.'})
-  }
+  res.status(403).json({
+      errorMessage: 'Deletion forbidden, this blog is not yours.'
+  })
 })
 
 module.exports = router
