@@ -21,6 +21,10 @@ Blog.init({
     type: DataTypes.TEXT,
     allowNull: false
   },
+  year: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
   likes: {
     type: DataTypes.INTEGER,
     defaultValue: 0

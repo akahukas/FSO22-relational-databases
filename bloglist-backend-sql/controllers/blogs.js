@@ -45,19 +45,30 @@ router.post('/', tokenExtractor, async (req, res, next) => {
   const user = await User.findByPk(req.decodedToken.id)
   const userJson = user.toJSON()
 
-  const { author, url, title, likes } = req.body
+  const { author, url, title, year, likes } = req.body
   
-  const blog = await Blog.create({
-    author,
-    url,
-    title,
-    likes,
-    userId: userJson.id,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  })
+  if (year >= 1991 && year <= new Date().getFullYear()) {
+    const blog = await Blog.create({
+      author,
+      url,
+      title,
+      year,
+      likes,
+      userId: userJson.id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    
+    res.json(blog)
+  }
+  else {
+    const currentYear = new Date().getFullYear()
+
+    res.status(400).json({
+      errorMessage: `Writing year of the blog must be between years 1991 and ${currentYear}`
+    })
+  }
   
-  res.json(blog)
 })
 
 router.get('/:id', blogFinder, async (req, res, next) => {
