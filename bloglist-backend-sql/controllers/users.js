@@ -13,7 +13,11 @@ router.get('/', async (req, res) => {
 })
 
 router.post('/', async (req, res) => {
-  const user = await User.create(req.body)
+  const user = await User.create({
+    ...req.body,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  })
   res.json(user)
 })
 
@@ -25,6 +29,8 @@ router.put('/:username', async (req, res) => {
   })
 
   user.name = req.body.name
+  user.updatedAt = new Date()
+  
   await user.save()
   res.json(user)
 })

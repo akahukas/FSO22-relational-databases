@@ -52,7 +52,9 @@ router.post('/', tokenExtractor, async (req, res, next) => {
     url,
     title,
     likes,
-    userId: userJson.id
+    userId: userJson.id,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   })
   
   res.json(blog)
@@ -70,6 +72,7 @@ router.get('/:id', blogFinder, async (req, res, next) => {
 router.put('/:id', blogFinder, async (req, res, next) => {
   if (req.blog) {
     req.blog.likes = req.body.likes
+    req.blog.updatedAt = new Date()
     await req.blog.save()
     res.json(req.blog)
   }
