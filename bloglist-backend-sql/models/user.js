@@ -22,6 +22,10 @@ User.init({
       isEmail: true
     }
   },
+  disabled: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,

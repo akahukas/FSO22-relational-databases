@@ -2,7 +2,7 @@ const router = require('express').Router()
 const { Op } = require('sequelize')
 
 const { Blog, User } = require('../models')
-const { blogFinder, tokenExtractor, userExtractor } = require('../util/middleware')
+const { blogFinder, tokenExtractor } = require('../util/middleware')
 
 
 router.get('/', async (req, res) => {
@@ -44,6 +44,12 @@ router.post('/', tokenExtractor, async (req, res, next) => {
 
   const user = await User.findByPk(req.decodedToken.id)
   const userJson = user.toJSON()
+
+  if (userJson.disabled) {
+    return res.status(403).send({
+      errorMessage: 'Session expired.'
+    })
+  }
 
   const { author, url, title, year, likes } = req.body
   
@@ -106,6 +112,16 @@ router.delete('/:id', [blogFinder, tokenExtractor], async (req, res, next) => {
       })
   }
   else if (!req.blog.userId || req.blog.userId === req.decodedToken.id) {
+    
+    const user = await User.findByPk(req.decodedToken.id)
+    const userJson = user.toJSON()
+    
+    if (userJson.disabled) {
+      return res.status(403).send({
+        errorMessage: 'Session expired.'
+      })
+    }
+
     await Blog.destroy({ where: { id: req.params.id } })
     res.status(204).end()
   }

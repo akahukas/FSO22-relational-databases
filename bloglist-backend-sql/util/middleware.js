@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const { SECRET } = require('../util/config')
 
-const { Blog, User } = require('../models')
+const { Blog, User, ServerSession } = require('../models')
 
 const blogFinder = async (req, res, next) => {
   req.blog = await Blog.findByPk(req.params.id)
@@ -39,6 +39,25 @@ const userExtractor = async (req, res, next) => {
   next()
 }
 
+const serverSessionExtractor = async (req, res, next) => {
+  const authorization = req.get('authorization')
+  const token = authorization.substring(7)
+  
+  const session = await ServerSession.findOne({
+    where: {
+      token: token
+    }
+  })
+
+  if (!token) {
+    req.session = null
+  }
+  else {
+    req.session = session
+    next()
+  }
+}
+
 const errorHandler = (error, req, res, next) => {
 
   if (error.name === 'JsonWebTokenError') {
@@ -60,5 +79,6 @@ module.exports = {
   blogFinder,
   tokenExtractor,
   userExtractor,
+  serverSessionExtractor,
   errorHandler
 }

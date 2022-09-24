@@ -30,6 +30,15 @@ router.put('/:id', tokenExtractor, async (req, res) => {
   }
   else {
     
+    const user = await User.findByPk(req.decodedToken.id)
+    const userJson = user.toJSON()
+    
+    if (userJson.disabled) {
+      return res.status(403).send({
+        errorMessage: 'Session expired.'
+      })
+    }
+
     const readinglist = await Readinglist.findByPk(req.params.id)
 
     if (req.decodedToken.id !== readinglist.userId) {
